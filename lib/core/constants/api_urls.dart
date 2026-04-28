@@ -1,0 +1,25 @@
+class ApiUrls {
+  ApiUrls._();
+
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
+
+  // Auth
+  static const String login = '/login';
+  static const String logout = '/logout';
+
+  // Farmers
+  static const String farmersSearch = '/farmers/search';
+  static String farmerById(int id) => '/farmers/$id';
+  static const String createFarmer = '/farmers';
+  static String farmerDebts(int id) => '/farmers/$id/debts';
+
+  // Products
+  static const String categories = '/categories';
+  static const String products = '/products';
+
+  // Transactions
+  static const String createTransaction = '/transactions';
+
+  // Repayments
+  static const String createRepayment = '/repayments';
+}

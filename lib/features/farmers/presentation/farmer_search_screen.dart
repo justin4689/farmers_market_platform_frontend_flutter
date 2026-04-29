@@ -19,7 +19,6 @@ class _FarmerSearchScreenState extends ConsumerState<FarmerSearchScreen> {
   @override
   void dispose() {
     _searchCtrl.dispose();
-    ref.read(farmersNotifierProvider.notifier).reset();
     super.dispose();
   }
 
@@ -61,6 +60,7 @@ class _FarmerSearchScreenState extends ConsumerState<FarmerSearchScreen> {
                         onPressed: () {
                           _searchCtrl.clear();
                           ref.read(farmersNotifierProvider.notifier).reset();
+                          setState(() {});
                         },
                       )
                     : null,
@@ -111,19 +111,19 @@ class _FarmerSearchScreenState extends ConsumerState<FarmerSearchScreen> {
                       leading: CircleAvatar(
                         backgroundColor: AppColors.primary,
                         child: Text(
-                          farmer.name[0].toUpperCase(),
+                          farmer.firstname[0].toUpperCase(),
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
                       title: Text(
-                        farmer.name,
+                        farmer.fullName,
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
-                      subtitle: Text(farmer.phone),
-                      trailing: farmer.totalDebt > 0
+                      subtitle: Text(farmer.phoneNumber),
+                      trailing: farmer.totalOutstandingDebt > 0
                           ? Chip(
                               label: Text(
-                                '${farmer.totalDebt.toStringAsFixed(0)} F',
+                                '${farmer.totalOutstandingDebt.toStringAsFixed(0)} F',
                                 style: const TextStyle(
                                     color: Colors.white, fontSize: 12),
                               ),
@@ -139,9 +139,7 @@ class _FarmerSearchScreenState extends ConsumerState<FarmerSearchScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.search,
-                          size: 64,
-                          color: AppColors.textHint),
+                      Icon(Icons.search, size: 64, color: AppColors.textHint),
                       const SizedBox(height: 12),
                       const Text(
                         'Saisissez un nom ou téléphone',

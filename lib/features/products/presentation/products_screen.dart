@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/widgets/app_loader.dart';
+import '../../transactions/presentation/cart_notifier.dart';
+import 'product_detail_screen.dart';
 import 'products_notifier.dart';
 
 class ProductsScreen extends ConsumerWidget {
@@ -14,6 +16,8 @@ class ProductsScreen extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoriesProvider);
     final productsAsync = ref.watch(productsProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final cart = ref.watch(cartProvider);
+    final cartCount = ref.watch(cartProvider.select((c) => c.length));
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
 
@@ -23,6 +27,17 @@ class ProductsScreen extends ConsumerWidget {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         title: const Text(AppStrings.products),
+        actions: [],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
+        onPressed: () => context.push('/cart'),
+        child: Badge(
+          isLabelVisible: cartCount > 0,
+          label: Text('$cartCount'),
+          child: const Icon(Icons.shopping_cart),
+        ),
       ),
       body: Column(
         children: [
@@ -34,7 +49,10 @@ class ProductsScreen extends ConsumerWidget {
               height: 56,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -47,9 +65,9 @@ class ProductsScreen extends ConsumerWidget {
                             ? Colors.white
                             : AppColors.textPrimary,
                       ),
-                      onSelected: (_) => ref
-                          .read(selectedCategoryProvider.notifier)
-                          .state = null,
+                      onSelected: (_) =>
+                          ref.read(selectedCategoryProvider.notifier).state =
+                              null,
                     ),
                   ),
                   ...categories.map(
@@ -64,9 +82,9 @@ class ProductsScreen extends ConsumerWidget {
                               ? Colors.white
                               : AppColors.textPrimary,
                         ),
-                        onSelected: (_) => ref
-                            .read(selectedCategoryProvider.notifier)
-                            .state = c.id,
+                        onSelected: (_) =>
+                            ref.read(selectedCategoryProvider.notifier).state =
+                                c.id,
                       ),
                     ),
                   ),
@@ -98,19 +116,29 @@ class ProductsScreen extends ConsumerWidget {
                         crossAxisCount: isTablet ? 3 : 2,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
-                        childAspectRatio: 0.85,
+                        childAspectRatio: 0.72,
                       ),
                       itemCount: products.length,
                       itemBuilder: (_, i) {
                         final p = products[i];
+                        final inCart = cart[p.id]?.quantity ?? 0;
                         return InkWell(
                           borderRadius: BorderRadius.circular(12),
-                          onTap: () => context
-                              .push('/checkout?productId=${p.id}'),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ProductDetailScreen(product: p),
+                            ),
+                          ),
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: inCart > 0
+                                    ? AppColors.primary
+                                    : AppColors.divider,
+                                width: inCart > 0 ? 1.5 : 1,
+                              ),
                               boxShadow: const [
                                 BoxShadow(
                                   color: AppColors.cardShadow,
@@ -125,8 +153,9 @@ class ProductsScreen extends ConsumerWidget {
                                 Container(
                                   padding: const EdgeInsets.all(14),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.1),
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -135,38 +164,106 @@ class ProductsScreen extends ConsumerWidget {
                                     size: 32,
                                   ),
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 8),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 8),
+                                    horizontal: 8,
+                                  ),
                                   child: Text(
                                     p.name,
                                     textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 13,
+                                      fontSize: 12,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 2),
                                 Text(
-                                  '${p.pricePerKg.toStringAsFixed(0)} F/kg',
+                                  '${p.priceFcfa.toStringAsFixed(0)} F',
                                   style: const TextStyle(
                                     color: AppColors.accent,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 13,
+                                    fontSize: 12,
                                   ),
                                 ),
-                                if (p.categoryName != null) ...[
-                                  const SizedBox(height: 2),
+                                if (p.category != null)
                                   Text(
-                                    p.categoryName!,
+                                    p.category!.name,
                                     style: const TextStyle(
                                       color: AppColors.textHint,
-                                      fontSize: 11,
+                                      fontSize: 10,
                                     ),
                                   ),
-                                ],
+                                const SizedBox(height: 8),
+                                // Add to cart button
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  child: inCart > 0
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            _SmallQtyBtn(
+                                              icon: Icons.remove,
+                                              onTap: () => ref
+                                                  .read(cartProvider.notifier)
+                                                  .decrement(p.id),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                  ),
+                                              child: Text(
+                                                '$inCart',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 15,
+                                                  color: AppColors.primary,
+                                                ),
+                                              ),
+                                            ),
+                                            _SmallQtyBtn(
+                                              icon: Icons.add,
+                                              onTap: () => ref
+                                                  .read(cartProvider.notifier)
+                                                  .increment(p.id),
+                                              active: true,
+                                            ),
+                                          ],
+                                        )
+                                      : SizedBox(
+                                          width: double.infinity,
+                                          child: ElevatedButton(
+                                            onPressed: () => ref
+                                                .read(cartProvider.notifier)
+                                                .add(p),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              foregroundColor: Colors.white,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 6,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              textStyle: const TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            child: const Text('Ajouter'),
+                                          ),
+                                        ),
+                                ),
                               ],
                             ),
                           ),
@@ -176,6 +273,40 @@ class ProductsScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SmallQtyBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool active;
+
+  const _SmallQtyBtn({
+    required this.icon,
+    required this.onTap,
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Container(
+        width: 26,
+        height: 26,
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: AppColors.primary),
+        ),
+        child: Icon(
+          icon,
+          size: 14,
+          color: active ? Colors.white : AppColors.primary,
+        ),
       ),
     );
   }

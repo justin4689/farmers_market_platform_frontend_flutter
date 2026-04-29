@@ -45,8 +45,15 @@ class ApiService {
         String? serverMessage;
         final data = response.data;
         if (data is Map) {
-          serverMessage = data['message']?.toString() ??
-              data['error']?.toString();
+          final errors = data['errors'];
+          if (errors is Map && errors.isNotEmpty) {
+            serverMessage = errors.values
+                .expand((v) => v is List ? v : [v])
+                .join('\n');
+          } else {
+            serverMessage = data['message']?.toString() ??
+                data['error']?.toString();
+          }
         }
 
         return handler.reject(
@@ -98,6 +105,7 @@ class ApiService {
   ApiException handleError(Object error) {
     if (error is DioException) return _handleDioError(error);
     if (error is ApiException) return error;
-    return ApiException.network();
+    // Erreur Dart inattendue (ex: cast de réponse JSON échoué)
+    return ApiException(statusCode: 0, message: error.toString());
   }
 }

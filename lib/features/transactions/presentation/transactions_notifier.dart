@@ -1,10 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../features/auth/presentation/auth_notifier.dart';
 import '../data/transactions_repository.dart';
+import '../domain/transaction_model.dart';
+
+// ── Providers ──────────────────────────────────────────────────────────────
 
 final transactionsRepositoryProvider = Provider<TransactionsRepository>(
   (ref) => TransactionsRepository(ref.read(apiServiceProvider)),
 );
+
+// ── State ──────────────────────────────────────────────────────────────────
 
 enum TransactionStatus { initial, loading, success, error }
 
@@ -18,29 +23,31 @@ class TransactionState {
   });
 }
 
+// ── Notifier ───────────────────────────────────────────────────────────────
+
 final transactionNotifierProvider =
     StateNotifierProvider<TransactionNotifier, TransactionState>((ref) {
-  return TransactionNotifier(ref.read(transactionsRepositoryProvider));
-});
+      return TransactionNotifier(ref.read(transactionsRepositoryProvider));
+    });
 
 class TransactionNotifier extends StateNotifier<TransactionState> {
   TransactionNotifier(this._repo) : super(const TransactionState());
 
   final TransactionsRepository _repo;
 
-  Future<bool> createTransaction({
+  Future<bool> checkout({
     required int farmerId,
-    required int productId,
-    required double quantityKg,
     required String paymentMethod,
+    double? interestRate,
+    required List<CheckoutItem> items,
   }) async {
     state = const TransactionState(status: TransactionStatus.loading);
     try {
-      await _repo.create(
+      await _repo.checkout(
         farmerId: farmerId,
-        productId: productId,
-        quantityKg: quantityKg,
         paymentMethod: paymentMethod,
+        interestRate: interestRate,
+        items: items,
       );
       state = const TransactionState(status: TransactionStatus.success);
       return true;
@@ -53,5 +60,6 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
-  void reset() => state = const TransactionState();
+  void reset() =>
+      state = const TransactionState(status: TransactionStatus.initial);
 }

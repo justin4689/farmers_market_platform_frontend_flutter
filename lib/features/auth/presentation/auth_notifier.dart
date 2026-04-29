@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/exceptions/api_exception.dart';
 import '../../../services/api_service.dart';
 import '../data/auth_repository.dart';
 import '../domain/user_model.dart';
@@ -58,7 +59,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   final AuthRepository _repo;
 
-  /// Called on app start to restore session.
+  /// Appelé au démarrage pour restaurer la session.
   Future<void> checkAuth() async {
     state = state.copyWith(status: AuthStatus.loading);
     final hasToken = await _repo.hasToken();
@@ -70,12 +71,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> login(String email, String password) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
     try {
-      final user = await _repo.login(email, password);
+      // login() retourne un record Dart 3 : (String token, UserModel user)
+      final (_, user) = await _repo.login(email, password);
       state = AuthState(status: AuthStatus.authenticated, user: user);
     } catch (e) {
       state = AuthState(
         status: AuthStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: e is ApiException ? e.message : e.toString(),
       );
     }
   }

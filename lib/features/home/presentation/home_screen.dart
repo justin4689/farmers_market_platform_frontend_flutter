@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../auth/presentation/auth_notifier.dart';
+import '../../transactions/presentation/cart_notifier.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -48,6 +49,8 @@ class HomeScreen extends ConsumerWidget {
       ),
     ];
 
+    final cartCount = ref.watch(cartProvider.select((c) => c.length));
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -73,6 +76,16 @@ class HomeScreen extends ConsumerWidget {
             },
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
+        onPressed: () => context.push('/cart'),
+        child: Badge(
+          isLabelVisible: cartCount > 0,
+          label: Text('$cartCount'),
+          child: const Icon(Icons.shopping_cart),
+        ),
       ),
       body: SafeArea(
         child: Padding(

@@ -1,4 +1,5 @@
 import '../../../services/api_service.dart';
+import '../../../core/exceptions/api_exception.dart';
 import '../../../core/constants/api_urls.dart';
 import '../domain/repayment_model.dart';
 
@@ -7,22 +8,44 @@ class RepaymentsRepository {
 
   RepaymentsRepository(this._api);
 
-  Future<RepaymentModel> create({
+  Future<List<DebtSummaryModel>> getFarmerDebts(int farmerId) async {
+    try {
+      final response = await _api.get(ApiUrls.farmerDebts(farmerId));
+      final data = response.data as Map<String, dynamic>;
+      final list = data['data'] as List<dynamic>? ?? [];
+      return list
+          .map((e) => DebtSummaryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw _api.handleError(e);
+    }
+  }
+
+  Future<RepaymentModel> createRepayment({
     required int farmerId,
-    required double weightKg,
-    required double amountFcfa,
+    required double kgReceived,
+    required double commodityRateFcfa,
   }) async {
     try {
       final response = await _api.post(
         ApiUrls.createRepayment,
         data: {
           'farmer_id': farmerId,
-          'weight_kg': weightKg,
-          'amount_fcfa': amountFcfa,
+          'kg_received': kgReceived,
+          'commodity_rate_fcfa': commodityRateFcfa,
         },
       );
-      final data = response.data as Map<String, dynamic>;
-      return RepaymentModel.fromJson(data['data'] as Map<String, dynamic>);
+      final responseData = response.data;
+      if (responseData is! Map<String, dynamic>) {
+        throw const ApiException(
+          statusCode: 0,
+          message: 'Réponse inattendue du serveur',
+        );
+      }
+      final json = responseData['data'] is Map<String, dynamic>
+          ? responseData['data'] as Map<String, dynamic>
+          : responseData;
+      return RepaymentModel.fromJson(json);
     } catch (e) {
       throw _api.handleError(e);
     }

@@ -24,7 +24,8 @@ class ProductsRepository {
     try {
       final response = await _api.get(
         ApiUrls.products,
-        queryParameters: categoryId != null ? {'category_id': categoryId} : null,
+        queryParameters:
+            categoryId != null ? {'category_id': categoryId} : null,
       );
       final data = response.data as Map<String, dynamic>;
       final list = data['data'] as List<dynamic>? ?? [];

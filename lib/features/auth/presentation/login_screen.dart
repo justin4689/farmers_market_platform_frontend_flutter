@@ -41,6 +41,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen(authNotifierProvider, (prev, next) {
       if (next.status == AuthStatus.authenticated) {
         context.go('/home');
+      } else if (next.status == AuthStatus.error &&
+          next.errorMessage != null &&
+          prev?.status != AuthStatus.error) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.error_outline, color: AppColors.error),
+                SizedBox(width: 8),
+                Text('Erreur de connexion'),
+              ],
+            ),
+            content: Text(next.errorMessage!),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
       }
     });
 
@@ -107,33 +129,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
-
-                    // Error banner
-                    if (authState.status == AuthStatus.error &&
-                        authState.errorMessage != null)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.error.withValues(alpha: 0.1),
-                          border: Border.all(color: AppColors.error),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.error_outline,
-                                color: AppColors.error, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                authState.errorMessage!,
-                                style:
-                                    const TextStyle(color: AppColors.error),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
 
                     // Email field
                     AppTextField(

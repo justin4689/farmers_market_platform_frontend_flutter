@@ -16,24 +16,30 @@ class CreateFarmerScreen extends ConsumerStatefulWidget {
 
 class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController();
+  final _firstnameCtrl = TextEditingController();
+  final _lastnameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final _villageCtrl = TextEditingController();
+  final _identifierCtrl = TextEditingController();
+  final _creditLimitCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _nameCtrl.dispose();
+    _firstnameCtrl.dispose();
+    _lastnameCtrl.dispose();
     _phoneCtrl.dispose();
-    _villageCtrl.dispose();
+    _identifierCtrl.dispose();
+    _creditLimitCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final success = await ref.read(farmersNotifierProvider.notifier).create(
-          name: _nameCtrl.text.trim(),
-          phone: _phoneCtrl.text.trim(),
-          village: _villageCtrl.text.trim(),
+          firstname: _firstnameCtrl.text.trim(),
+          lastname: _lastnameCtrl.text.trim(),
+          phoneNumber: _phoneCtrl.text.trim(),
+          identifier: _identifierCtrl.text.trim(),
+          creditLimitFcfa: double.tryParse(_creditLimitCtrl.text),
         );
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -46,12 +52,42 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
     }
   }
 
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.error_outline, color: AppColors.error),
+            SizedBox(width: 8),
+            Text('Erreur'),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(farmersNotifierProvider);
     final isLoading = state.status == FarmersStatus.loading;
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
+
+    ref.listen(farmersNotifierProvider, (prev, next) {
+      if (next.status == FarmersStatus.error &&
+          next.errorMessage != null &&
+          prev?.status != FarmersStatus.error) {
+        _showError(next.errorMessage!);
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -63,7 +99,8 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isTablet ? 520.0 : double.infinity),
+            constraints:
+                BoxConstraints(maxWidth: isTablet ? 520.0 : double.infinity),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Form(
@@ -71,25 +108,22 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (state.status == FarmersStatus.error &&
-                        state.errorMessage != null)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.error.withValues(alpha: 0.1),
-                          border: Border.all(color: AppColors.error),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          state.errorMessage!,
-                          style: const TextStyle(color: AppColors.error),
-                        ),
-                      ),
-
+                    // Prénom
                     AppTextField(
-                      label: AppStrings.farmerName,
-                      controller: _nameCtrl,
+                      label: 'Prénom',
+                      controller: _firstnameCtrl,
+                      prefixIcon: const Icon(Icons.person_outline,
+                          color: AppColors.primary),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Le prénom est requis.'
+                          : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Nom de famille
+                    AppTextField(
+                      label: 'Nom de famille',
+                      controller: _lastnameCtrl,
                       prefixIcon: const Icon(Icons.person_outline,
                           color: AppColors.primary),
                       validator: (v) => (v == null || v.trim().isEmpty)
@@ -98,6 +132,7 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Téléphone
                     AppTextField(
                       label: AppStrings.farmerPhone,
                       controller: _phoneCtrl,
@@ -110,10 +145,22 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Identifiant (optionnel)
                     AppTextField(
-                      label: AppStrings.farmerVillage,
-                      controller: _villageCtrl,
-                      prefixIcon: const Icon(Icons.location_on_outlined,
+                      label: 'Identifiant (optionnel)',
+                      controller: _identifierCtrl,
+                      prefixIcon: const Icon(Icons.badge_outlined,
+                          color: AppColors.primary),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Limite de crédit (optionnel)
+                    AppTextField(
+                      label: 'Limite de crédit FCFA (optionnel)',
+                      controller: _creditLimitCtrl,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      prefixIcon: const Icon(Icons.account_balance_wallet_outlined,
                           color: AppColors.primary),
                     ),
                     const SizedBox(height: 32),

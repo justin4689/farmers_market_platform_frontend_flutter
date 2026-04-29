@@ -9,7 +9,7 @@ class ApiException implements Exception {
   factory ApiException.fromStatusCode(int statusCode, [String? serverMessage]) {
     final message = switch (statusCode) {
       400 => serverMessage ?? AppStrings.validationError,
-      401 => AppStrings.sessionExpired,
+      401 => serverMessage ?? AppStrings.sessionExpired,
       403 => AppStrings.forbidden,
       422 => serverMessage ?? AppStrings.validationError,
       500 => AppStrings.serverError,

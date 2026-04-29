@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/exceptions/api_exception.dart';
 import '../../../features/auth/presentation/auth_notifier.dart';
 import '../data/farmers_repository.dart';
 import '../domain/farmer_model.dart';
@@ -12,11 +13,6 @@ final farmersRepositoryProvider = Provider<FarmersRepository>(
 final farmersNotifierProvider =
     StateNotifierProvider<FarmersNotifier, FarmersState>((ref) {
   return FarmersNotifier(ref.read(farmersRepositoryProvider));
-});
-
-final farmerDebtsProvider =
-    FutureProvider.family<List<DebtModel>, int>((ref, farmerId) async {
-  return ref.read(farmersRepositoryProvider).getDebts(farmerId);
 });
 
 final farmerDetailProvider =
@@ -71,25 +67,33 @@ class FarmersNotifier extends StateNotifier<FarmersState> {
     } catch (e) {
       state = state.copyWith(
         status: FarmersStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: e is ApiException ? e.message : e.toString(),
       );
     }
   }
 
   Future<bool> create({
-    required String name,
-    required String phone,
-    String? village,
+    required String firstname,
+    required String lastname,
+    required String phoneNumber,
+    String? identifier,
+    double? creditLimitFcfa,
   }) async {
     state = state.copyWith(status: FarmersStatus.loading);
     try {
-      await _repo.create(name: name, phone: phone, village: village);
+      await _repo.create(
+        firstname: firstname,
+        lastname: lastname,
+        phoneNumber: phoneNumber,
+        identifier: identifier,
+        creditLimitFcfa: creditLimitFcfa,
+      );
       state = state.copyWith(status: FarmersStatus.success);
       return true;
     } catch (e) {
       state = state.copyWith(
         status: FarmersStatus.error,
-        errorMessage: e.toString(),
+        errorMessage: e is ApiException ? e.message : e.toString(),
       );
       return false;
     }

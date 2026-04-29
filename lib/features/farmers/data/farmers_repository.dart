@@ -34,34 +34,25 @@ class FarmersRepository {
   }
 
   Future<FarmerModel> create({
-    required String name,
-    required String phone,
-    String? village,
+    required String firstname,
+    required String lastname,
+    required String phoneNumber,
+    String? identifier,
+    double? creditLimitFcfa,
   }) async {
     try {
       final response = await _api.post(
         ApiUrls.createFarmer,
         data: {
-          'name': name,
-          'phone': phone,
-          if (village != null && village.isNotEmpty) 'village': village,
+          'firstname': firstname,
+          'lastname': lastname,
+          'phone_number': phoneNumber,
+          'identifier': identifier?.isNotEmpty == true ? identifier : null,
+          'credit_limit_fcfa': creditLimitFcfa,
         },
       );
       final data = response.data as Map<String, dynamic>;
       return FarmerModel.fromJson(data['data'] as Map<String, dynamic>);
-    } catch (e) {
-      throw _api.handleError(e);
-    }
-  }
-
-  Future<List<DebtModel>> getDebts(int farmerId) async {
-    try {
-      final response = await _api.get(ApiUrls.farmerDebts(farmerId));
-      final data = response.data as Map<String, dynamic>;
-      final list = data['data'] as List<dynamic>? ?? [];
-      return list
-          .map((e) => DebtModel.fromJson(e as Map<String, dynamic>))
-          .toList();
     } catch (e) {
       throw _api.handleError(e);
     }

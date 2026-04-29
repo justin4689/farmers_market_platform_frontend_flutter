@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../repayments/presentation/repayments_notifier.dart';
 import 'farmers_notifier.dart';
 
 class FarmerProfileScreen extends ConsumerWidget {
@@ -50,7 +51,7 @@ class FarmerProfileScreen extends ConsumerWidget {
                         radius: 36,
                         backgroundColor: Colors.white,
                         child: Text(
-                          farmer.name[0].toUpperCase(),
+                          farmer.firstname[0].toUpperCase(),
                           style: const TextStyle(
                             color: AppColors.primary,
                             fontSize: 28,
@@ -64,7 +65,7 @@ class FarmerProfileScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              farmer.name,
+                              farmer.fullName,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -74,90 +75,66 @@ class FarmerProfileScreen extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.phone,
-                                    color: Colors.white70, size: 16),
+                                const Icon(Icons.tag,
+                                    color: Colors.white70, size: 14),
                                 const SizedBox(width: 4),
                                 Text(
-                                  farmer.phone,
-                                  style: const TextStyle(color: Colors.white70),
+                                  farmer.identifier,
+                                  style:
+                                      const TextStyle(color: Colors.white70),
                                 ),
                               ],
                             ),
-                            if (farmer.village != null) ...[
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  const Icon(Icons.location_on,
-                                      color: Colors.white70, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    farmer.village!,
-                                    style:
-                                        const TextStyle(color: Colors.white70),
-                                  ),
-                                ],
-                              ),
-                            ],
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                const Icon(Icons.phone,
+                                    color: Colors.white70, size: 14),
+                                const SizedBox(width: 4),
+                                Text(
+                                  farmer.phoneNumber,
+                                  style:
+                                      const TextStyle(color: Colors.white70),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-                // Debt summary
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: farmer.totalDebt > 0
-                        ? AppColors.error.withValues(alpha: 0.08)
-                        : AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: farmer.totalDebt > 0
-                          ? AppColors.error.withValues(alpha: 0.3)
-                          : AppColors.primary.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            AppStrings.totalDebt,
-                            style: TextStyle(
-                                color: AppColors.textSecondary, fontSize: 13),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${farmer.totalDebt.toStringAsFixed(0)} FCFA',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: farmer.totalDebt > 0
-                                  ? AppColors.error
-                                  : AppColors.primary,
-                            ),
-                          ),
-                        ],
+                // Credit limit + debt summary
+                Row(
+                  children: [
+                    Expanded(
+                      child: _InfoCard(
+                        label: 'Limite de crédit',
+                        value:
+                            '${farmer.creditLimitFcfa.toStringAsFixed(0)} F',
+                        icon: Icons.account_balance_wallet,
+                        color: AppColors.primary,
                       ),
-                      Icon(
-                        farmer.totalDebt > 0
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _InfoCard(
+                        label: AppStrings.totalDebt,
+                        value:
+                            '${farmer.totalOutstandingDebt.toStringAsFixed(0)} F',
+                        icon: farmer.totalOutstandingDebt > 0
                             ? Icons.warning_amber_rounded
                             : Icons.check_circle,
-                        color: farmer.totalDebt > 0
+                        color: farmer.totalOutstandingDebt > 0
                             ? AppColors.error
                             : AppColors.primary,
-                        size: 36,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Actions
                 Row(
@@ -165,8 +142,8 @@ class FarmerProfileScreen extends ConsumerWidget {
                     Expanded(
                       child: AppButton(
                         label: 'Nouvelle transaction',
-                        onPressed: () =>
-                            context.push('/checkout?farmerId=$farmerId'),
+                        onPressed: () => context.push(
+                            '/checkout?farmerId=$farmerId&farmerName=${Uri.encodeComponent(farmer.fullName)}'),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -195,8 +172,11 @@ class FarmerProfileScreen extends ConsumerWidget {
 
                 debtsAsync.when(
                   loading: () => const AppLoader(),
-                  error: (e, _) =>
-                      AppErrorWidget(message: e.toString()),
+                  error: (e, _) => AppErrorWidget(
+                    message: e.toString(),
+                    onRetry: () =>
+                        ref.invalidate(farmerDebtsProvider(farmerId)),
+                  ),
                   data: (debts) => debts.isEmpty
                       ? const Center(
                           child: Padding(
@@ -209,31 +189,97 @@ class FarmerProfileScreen extends ConsumerWidget {
                           ),
                         )
                       : Column(
-                          children: debts
-                              .map(
-                                (d) => Card(
-                                  margin:
-                                      const EdgeInsets.only(bottom: 8),
-                                  child: ListTile(
-                                    title: Text(d.description),
-                                    subtitle: Text(d.date),
-                                    trailing: Text(
-                                      '${d.amount.toStringAsFixed(0)} F',
+                          children: debts.map((d) {
+                            final isPaid = d.status == 'paid';
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: Icon(
+                                  isPaid
+                                      ? Icons.check_circle
+                                      : Icons.pending_actions,
+                                  color: isPaid
+                                      ? AppColors.primary
+                                      : AppColors.accent,
+                                ),
+                                title: Text(
+                                  'Transaction #${d.transactionId}',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(d.createdAt),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '${d.amountFcfa.toStringAsFixed(0)} F',
                                       style: const TextStyle(
                                         color: AppColors.error,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ),
+                                    Text(
+                                      'Reste: ${d.remainingFcfa.toStringAsFixed(0)} F',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              )
-                              .toList(),
+                              ),
+                            );
+                          }).toList(),
                         ),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  const _InfoCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 6),
+          Text(label,
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 12)),
+          const SizedBox(height: 2),
+          Text(value,
+              style: TextStyle(
+                color: color,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              )),
+        ],
       ),
     );
   }

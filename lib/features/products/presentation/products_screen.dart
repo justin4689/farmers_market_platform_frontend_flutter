@@ -8,6 +8,97 @@ import '../../transactions/presentation/cart_notifier.dart';
 import 'product_detail_screen.dart';
 import 'products_notifier.dart';
 
+// ── Shimmer skeleton helpers ───────────────────────────────────────────────
+
+class _Shimmer extends StatefulWidget {
+  final Widget child;
+  const _Shimmer({required this.child});
+
+  @override
+  State<_Shimmer> createState() => _ShimmerState();
+}
+
+class _ShimmerState extends State<_Shimmer>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+    _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, child) => ShaderMask(
+        blendMode: BlendMode.srcATop,
+        shaderCallback: (bounds) => LinearGradient(
+          begin: Alignment(-1.5 + _anim.value * 3, 0),
+          end: Alignment(-0.5 + _anim.value * 3, 0),
+          colors: const [
+            Color(0xFFE8E8E8),
+            Color(0xFFF5F5F5),
+            Color(0xFFE8E8E8),
+          ],
+        ).createShader(bounds),
+        child: child,
+      ),
+      child: widget.child,
+    );
+  }
+}
+
+Widget _bone({double? w, double? h, double radius = 8}) => Container(
+      width: w,
+      height: h ?? 14,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE0E0E0),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+
+// Skeleton for one category chip
+Widget _chipSkeleton() => Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: _bone(w: 72, h: 32, radius: 16),
+    );
+
+// Skeleton for one product card
+Widget _productCardSkeleton() => Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _bone(w: 60, h: 60, radius: 30),
+          const SizedBox(height: 10),
+          _bone(w: 80),
+          const SizedBox(height: 6),
+          _bone(w: 50, h: 12),
+          const SizedBox(height: 6),
+          _bone(w: 40, h: 10),
+          const SizedBox(height: 12),
+          _bone(w: 90, h: 28, radius: 8),
+        ],
+      ),
+    );
+
 class ProductsScreen extends ConsumerWidget {
   const ProductsScreen({super.key});
 
@@ -43,7 +134,16 @@ class ProductsScreen extends ConsumerWidget {
         children: [
           // Category filter chips
           categoriesAsync.when(
-            loading: () => const SizedBox(height: 56, child: AppLoader()),
+            loading: () => _Shimmer(
+              child: SizedBox(
+                height: 56,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  children: List.generate(5, (_) => _chipSkeleton()),
+                ),
+              ),
+            ),
             error: (_, _) => const SizedBox.shrink(),
             data: (categories) => SizedBox(
               height: 56,
@@ -98,7 +198,19 @@ class ProductsScreen extends ConsumerWidget {
           // Products grid
           Expanded(
             child: productsAsync.when(
-              loading: () => const AppLoader(message: AppStrings.loading),
+              loading: () => _Shimmer(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isTablet ? 3 : 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.72,
+                  ),
+                  itemCount: isTablet ? 9 : 6,
+                  itemBuilder: (_, _) => _productCardSkeleton(),
+                ),
+              ),
               error: (e, _) => AppErrorWidget(
                 message: e.toString(),
                 onRetry: () => ref.invalidate(productsProvider),

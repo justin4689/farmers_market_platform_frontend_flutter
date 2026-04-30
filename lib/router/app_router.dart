@@ -11,6 +11,7 @@ import '../features/products/presentation/products_screen.dart';
 import '../features/transactions/presentation/checkout_screen.dart';
 import '../features/transactions/presentation/cart_screen.dart';
 import '../features/repayments/presentation/repayment_screen.dart';
+import '../features/splash/splash_screen.dart';
 
 // ── Router notifier (bridges Riverpod → GoRouter listenable) ───────────────
 
@@ -42,10 +43,17 @@ final routerProvider = Provider<GoRouter>((ref) {
   final notifier = _RouterNotifier(ref);
 
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: '/splash',
     refreshListenable: notifier,
     redirect: notifier.redirect,
     routes: [
+      // Splash
+      GoRoute(
+        path: '/splash',
+        name: 'splash',
+        builder: (_, _) => const SplashScreen(),
+      ),
+
       // Auth
       GoRoute(
         path: '/login',

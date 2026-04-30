@@ -21,7 +21,6 @@ class AppStrings {
   static const String createFarmer = 'Créer un agriculteur';
   static const String products = 'Produits';
   static const String repayments = 'Remboursements';
-  static const String transactions = 'Transactions';
 
   // Farmers
   static const String farmerSearch = 'Recherche agriculteur';

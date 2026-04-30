@@ -3,6 +3,11 @@ class ApiUrls {
 
   static const String baseUrl = 'http://10.0.2.2:8000/api';
 
+  //http://10.0.2.2:8000/api LOCAL API URL 
+
+  
+  // static const String baseUrl = 'http://13.51.177.195/api';
+
   // Auth
   static const String login = '/login';
   static const String logout = '/logout';

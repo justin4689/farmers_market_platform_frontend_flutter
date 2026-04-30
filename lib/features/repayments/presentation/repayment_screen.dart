@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
@@ -33,9 +34,6 @@ class _RepaymentScreenState extends ConsumerState<RepaymentScreen> {
   final _kgCtrl = TextEditingController();
   final _rateCtrl = TextEditingController();
 
-  // Sauvegarde du notifier pour pouvoir l'appeler dans dispose()
-  late final FarmersNotifier _farmersNotifier;
-
   double get _kg => double.tryParse(_kgCtrl.text) ?? 0;
   double get _rate => double.tryParse(_rateCtrl.text) ?? 0;
   double get _total => _kg * _rate;
@@ -45,9 +43,23 @@ class _RepaymentScreenState extends ConsumerState<RepaymentScreen> {
   @override
   void initState() {
     super.initState();
-    _farmersNotifier = ref.read(farmersNotifierProvider.notifier);
     _kgCtrl.addListener(() => setState(() {}));
     _rateCtrl.addListener(() => setState(() {}));
+
+    Future.microtask(() async {
+      if (!mounted) return;
+      // Nettoyer les résultats de recherche précédents
+      ref.read(farmersNotifierProvider.notifier).reset();
+      // Auto-sélection si on vient du profil agriculteur
+      if (widget.farmerId != null) {
+        try {
+          final farmer = await ref.read(
+            farmerDetailProvider(widget.farmerId!).future,
+          );
+          if (mounted) setState(() => _selectedFarmer = farmer);
+        } catch (_) {}
+      }
+    });
   }
 
   @override
@@ -56,7 +68,6 @@ class _RepaymentScreenState extends ConsumerState<RepaymentScreen> {
     _searchCtrl.dispose();
     _kgCtrl.dispose();
     _rateCtrl.dispose();
-    _farmersNotifier.reset();
     super.dispose();
   }
 
@@ -100,16 +111,21 @@ class _RepaymentScreenState extends ConsumerState<RepaymentScreen> {
         );
 
     if (success && mounted) {
+      // Invalide le profil pour qu'il soit à jour au retour
+      final fid = _selectedFarmer!.id;
+      ref.invalidate(farmerDetailProvider(fid));
+      ref.invalidate(farmerDebtsProvider(fid));
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 10),
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
               Expanded(
                 child: Text(
                   AppStrings.repaymentSuccess,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
             ],
@@ -121,8 +137,13 @@ class _RepaymentScreenState extends ConsumerState<RepaymentScreen> {
           ),
         ),
       );
-      // Reset everything for a fresh entry
-      _clearFarmer();
+
+      // Si on vient du profil, on retourne dessus (données déjà invalidées)
+      if (widget.farmerId != null && context.canPop()) {
+        context.pop();
+      } else {
+        _clearFarmer();
+      }
     }
   }
 

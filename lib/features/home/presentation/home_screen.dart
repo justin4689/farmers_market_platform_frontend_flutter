@@ -41,12 +41,7 @@ class HomeScreen extends ConsumerWidget {
         color: const Color(0xFF6A1B9A),
         route: '/repayments',
       ),
-      _MenuItem(
-        icon: Icons.receipt_long_outlined,
-        label: AppStrings.transactions,
-        color: const Color(0xFF00695C),
-        route: '/checkout',
-      ),
+    
     ];
 
     final cartCount = ref.watch(cartProvider.select((c) => c.length));
@@ -58,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
         foregroundColor: Colors.white,
         title: Row(
           children: [
-            const Icon(Icons.agriculture, size: 22),
+            Image.asset('assets/images/logo1.png', height: 28),
             const SizedBox(width: 8),
             const Text(
               AppStrings.appName,

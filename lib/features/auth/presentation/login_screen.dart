@@ -51,7 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 Icon(Icons.error_outline, color: AppColors.error),
                 SizedBox(width: 8),
-                Text('Erreur de connexion'),
+                Text('Login error'),
               ],
             ),
             content: Text(next.errorMessage!),
@@ -139,10 +139,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const Icon(Icons.email_outlined, color: AppColors.primary),
                       validator: (v) {
                         if (v == null || v.trim().isEmpty) {
-                          return 'Veuillez saisir votre adresse e-mail.';
+                          return 'Please enter your email address.';
                         }
                         if (!v.contains('@')) {
-                          return 'Adresse e-mail invalide.';
+                          return 'Invalid email address.';
                         }
                         return null;
                       },
@@ -158,7 +158,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           const Icon(Icons.lock_outline, color: AppColors.primary),
                       validator: (v) {
                         if (v == null || v.isEmpty) {
-                          return 'Veuillez saisir votre mot de passe.';
+                          return 'Please enter your password.';
                         }
                         return null;
                       },

@@ -40,7 +40,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               children: [
                 Icon(Icons.error_outline, color: AppColors.error),
                 SizedBox(width: 8),
-                Text('Erreur'),
+                Text('Error'),
               ],
             ),
             content: Text(next.errorMessage!),
@@ -406,7 +406,7 @@ class _CartBottomSheetState extends ConsumerState<_CartBottomSheet> {
               children: [
                 Icon(Icons.error_outline, color: AppColors.error),
                 SizedBox(width: 8),
-                Text('Erreur'),
+                Text('Error'),
               ],
             ),
             content: Text(next.errorMessage!),
@@ -524,7 +524,7 @@ class _CartBottomSheetState extends ConsumerState<_CartBottomSheet> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
-                  labelText: 'Taux d\'intérêt (%)',
+                  labelText: 'Interest rate (%)',
                   prefixIcon: const Icon(Icons.percent,
                       color: AppColors.accent),
                   border: OutlineInputBorder(
@@ -549,13 +549,13 @@ class _CartBottomSheetState extends ConsumerState<_CartBottomSheet> {
               child: Column(
                 children: [
                   _TotalRow(
-                      label: 'Sous-total',
+                      label: 'Subtotal',
                       value: subtotal.toStringAsFixed(0)),
                   if (interestAmount > 0) ...[
                     const SizedBox(height: 4),
                     _TotalRow(
                       label:
-                          'Intérêts (${_interestCtrl.text}%)',
+                          'Interest (${_interestCtrl.text}%)',
                       value: interestAmount.toStringAsFixed(0),
                     ),
                   ],
@@ -592,7 +592,7 @@ class _CartBottomSheetState extends ConsumerState<_CartBottomSheet> {
                     )
                   : Text(
                       widget.farmerId == null
-                          ? 'Sélectionner un agriculteur d\'abord'
+                          ? 'Select a farmer first'
                           : AppStrings.confirmTransaction,
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold),

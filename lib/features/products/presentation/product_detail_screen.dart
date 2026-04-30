@@ -75,7 +75,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
 
               // Price
               Text(
-                '${widget.product.priceFcfa.toStringAsFixed(0)} FCFA / unité',
+                '${widget.product.priceFcfa.toStringAsFixed(0)} FCFA / unit',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -171,7 +171,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Sous-total : ${(widget.product.priceFcfa * inCart).toStringAsFixed(0)} FCFA',
+                  'Subtotal: ${(widget.product.priceFcfa * inCart).toStringAsFixed(0)} FCFA',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.textSecondary,
@@ -185,7 +185,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               ElevatedButton.icon(
                 icon: const Icon(Icons.add_shopping_cart),
                 label: Text(
-                  inCart > 0 ? 'Déjà dans le panier' : 'Ajouter au panier',
+                  inCart > 0 ? 'Already in cart' : 'Add to cart',
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: inCart > 0
@@ -210,7 +210,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              '${widget.product.name} ajouté au panier',
+                              '${widget.product.name} added to cart',
                             ),
                             backgroundColor: AppColors.primary,
                             duration: const Duration(seconds: 2),

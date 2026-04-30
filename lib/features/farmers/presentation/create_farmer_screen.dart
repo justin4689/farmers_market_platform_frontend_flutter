@@ -20,13 +20,13 @@ const _countries = [
   _Country('🇨🇮', 'Côte d\'Ivoire', '+225'),
   _Country('🇧🇫', 'Burkina Faso',   '+226'),
   _Country('🇲🇱', 'Mali',           '+223'),
-  _Country('🇬🇳', 'Guinée',         '+224'),
-  _Country('🇸🇳', 'Sénégal',        '+221'),
-  _Country('🇧🇯', 'Bénin',          '+229'),
+  _Country('🇬🇳', 'Guinea',          '+224'),
+  _Country('🇸🇳', 'Senegal',         '+221'),
+  _Country('🇧🇯', 'Benin',           '+229'),
   _Country('🇹🇬', 'Togo',           '+228'),
   _Country('🇳🇪', 'Niger',          '+227'),
   _Country('🇬🇭', 'Ghana',          '+233'),
-  _Country('🇨🇲', 'Cameroun',       '+237'),
+  _Country('🇨🇲', 'Cameroon',        '+237'),
   _Country('🇳🇬', 'Nigeria',        '+234'),
   _Country('🇫🇷', 'France',         '+33'),
 ];
@@ -86,7 +86,7 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Choisir l\'indicatif',
+                  'Select dial code',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -175,7 +175,7 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
               children: [
                 Icon(Icons.error_outline, color: AppColors.error),
                 SizedBox(width: 8),
-                Text('Erreur'),
+                Text('Error'),
               ],
             ),
             content: Text(next.errorMessage!),
@@ -211,24 +211,24 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
                   children: [
                     // ── Prénom ──────────────────────────────────────────────
                     AppTextField(
-                      label: 'Prénom *',
+                      label: 'First name *',
                       controller: _firstnameCtrl,
                       prefixIcon: const Icon(Icons.person_outline,
                           color: AppColors.primary),
                       validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Le prénom est requis.'
+                          ? 'First name is required.'
                           : null,
                     ),
                     const SizedBox(height: 16),
 
                     // ── Nom de famille ──────────────────────────────────────
                     AppTextField(
-                      label: 'Nom de famille *',
+                      label: 'Last name *',
                       controller: _lastnameCtrl,
                       prefixIcon: const Icon(Icons.person_outline,
                           color: AppColors.primary),
                       validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Le nom est requis.'
+                          ? 'Last name is required.'
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -237,10 +237,10 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
                     FormField<String>(
                       validator: (_) {
                         if (_phoneCtrl.text.trim().isEmpty) {
-                          return 'Le numéro de téléphone est requis.';
+                          return 'Phone number is required.';
                         }
                         if (_phoneCtrl.text.trim().length < 6) {
-                          return 'Numéro trop court.';
+                          return 'Number too short.';
                         }
                         return null;
                       },
@@ -249,7 +249,7 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Téléphone *',
+                              'Phone *',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -360,19 +360,19 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
 
                     // ── Identifiant ─────────────────────────────────────────
                     AppTextField(
-                      label: 'Identifiant *',
+                      label: 'Identifier *',
                       controller: _identifierCtrl,
                       prefixIcon: const Icon(Icons.badge_outlined,
                           color: AppColors.primary),
                       validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'L\'identifiant est requis.'
+                          ? 'Identifier is required.'
                           : null,
                     ),
                     const SizedBox(height: 16),
 
                     // ── Limite de crédit ────────────────────────────────────
                     AppTextField(
-                      label: 'Limite de crédit (FCFA) *',
+                      label: 'Credit limit (FCFA) *',
                       controller: _creditLimitCtrl,
                       keyboardType: TextInputType.number,
                       prefixIcon: const Icon(
@@ -380,11 +380,11 @@ class _CreateFarmerScreenState extends ConsumerState<CreateFarmerScreen> {
                           color: AppColors.primary),
                       validator: (v) {
                         if (v == null || v.trim().isEmpty) {
-                          return 'La limite de crédit est requise.';
+                          return 'Credit limit is required.';
                         }
                         final parsed = double.tryParse(v.trim());
                         if (parsed == null || parsed < 0) {
-                          return 'Valeur invalide.';
+                          return 'Invalid value.';
                         }
                         return null;
                       },

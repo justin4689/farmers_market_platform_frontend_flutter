@@ -169,7 +169,7 @@ class _RepaymentScreenState extends ConsumerState<RepaymentScreen> {
               children: [
                 Icon(Icons.error_outline, color: AppColors.error),
                 SizedBox(width: 8),
-                Text('Erreur de remboursement'),
+                Text('Repayment error'),
               ],
             ),
             content: Text(next.errorMessage!),
@@ -280,7 +280,7 @@ class _SearchSection extends StatelessWidget {
             keyboardType: TextInputType.name,
             textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
-              hintText: 'Rechercher un agriculteur…',
+              hintText: 'Search for a farmer…',
               hintStyle: const TextStyle(color: AppColors.textHint),
               prefixIcon: const Icon(Icons.search, color: AppColors.primary),
               suffixIcon: searchCtrl.text.isNotEmpty
@@ -369,7 +369,7 @@ class _FarmerResultsList extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  farmersState.errorMessage ?? 'Erreur lors de la recherche.',
+                  farmersState.errorMessage ?? 'Search error.',
                   style: const TextStyle(color: AppColors.error, fontSize: 13),
                 ),
               ),
@@ -526,7 +526,7 @@ class _RepaymentForm extends StatelessWidget {
                         size: 18,
                         color: AppColors.textSecondary,
                       ),
-                      tooltip: 'Changer d\'agriculteur',
+                      tooltip: 'Change farmer',
                       onPressed: onClearFarmer,
                     ),
                   ],
@@ -564,8 +564,8 @@ class _RepaymentForm extends StatelessWidget {
                         children: [
                           Text(
                             totalDebt > 0
-                                ? 'Dette en cours'
-                                : 'Aucune dette',
+                                ? 'Outstanding debt'
+                                : 'No debt',
                             style: TextStyle(
                               fontSize: 12,
                               color: totalDebt > 0
@@ -601,11 +601,11 @@ class _RepaymentForm extends StatelessWidget {
                 prefixIcon: const Icon(Icons.scale, color: AppColors.primary),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
-                    return 'Le poids est requis.';
+                    return 'Weight is required.';
                   }
                   final parsed = double.tryParse(v.trim());
                   if (parsed == null || parsed <= 0) {
-                    return 'Veuillez saisir un poids valide.';
+                    return 'Please enter a valid weight.';
                   }
                   return null;
                 },
@@ -614,7 +614,7 @@ class _RepaymentForm extends StatelessWidget {
 
               // ── Taux (FCFA/kg) ────────────────────────────────────────────
               AppTextField(
-                label: 'Taux (FCFA/kg)',
+                label: 'Rate (FCFA/kg)',
                 controller: rateCtrl,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
@@ -625,14 +625,14 @@ class _RepaymentForm extends StatelessWidget {
                 ),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) {
-                    return 'Le taux est requis.';
+                    return 'Rate is required.';
                   }
                   final parsed = double.tryParse(v.trim());
                   if (parsed == null || parsed <= 0) {
-                    return 'Veuillez saisir un taux valide.';
+                    return 'Please enter a valid rate.';
                   }
                   if (total > totalDebt) {
-                    return 'Le total (${total.toStringAsFixed(0)} FCFA) dépasse la dette (${totalDebt.toStringAsFixed(0)} FCFA).';
+                    return 'Total (${total.toStringAsFixed(0)} FCFA) exceeds debt (${totalDebt.toStringAsFixed(0)} FCFA).';
                   }
                   return null;
                 },
@@ -698,7 +698,7 @@ class _TotalCard extends StatelessWidget {
       child: Column(
         children: [
           _SummaryRow(
-            label: 'Poids reçu',
+            label: 'Weight received',
             value: '${kgVal.toStringAsFixed(2)} kg',
             valueStyle: const TextStyle(
               color: AppColors.textPrimary,
@@ -707,7 +707,7 @@ class _TotalCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           _SummaryRow(
-            label: 'Taux',
+            label: 'Rate',
             value: '${rateVal.toStringAsFixed(0)} FCFA/kg',
             valueStyle: const TextStyle(
               color: AppColors.textPrimary,
@@ -719,7 +719,7 @@ class _TotalCard extends StatelessWidget {
             child: Divider(height: 1),
           ),
           _SummaryRow(
-            label: 'Total crédité',
+            label: 'Total credited',
             value: '${total.toStringAsFixed(0)} FCFA',
             valueStyle: const TextStyle(
               fontSize: 20,

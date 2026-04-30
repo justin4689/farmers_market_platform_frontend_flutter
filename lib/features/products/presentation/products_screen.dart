@@ -372,7 +372,7 @@ class ProductsScreen extends ConsumerWidget {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            child: const Text('Ajouter'),
+                                            child: const Text('Add'),
                                           ),
                                         ),
                                 ),

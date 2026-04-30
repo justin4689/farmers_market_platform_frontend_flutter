@@ -1,17 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../features/auth/presentation/auth_notifier.dart';
 import '../data/transactions_repository.dart';
 import '../domain/transaction_model.dart';
 
-// ── Providers ──────────────────────────────────────────────────────────────
-
-final transactionsRepositoryProvider = Provider<TransactionsRepository>(
-  (ref) => TransactionsRepository(ref.read(apiServiceProvider)),
-);
+export '../data/transactions_repository.dart' show transactionsRepositoryProvider;
 
 // ── State ──────────────────────────────────────────────────────────────────
 
-enum TransactionStatus { initial, loading, success, error }
+enum TransactionStatus { initial, loading, success, queued, error }
 
 class TransactionState {
   final TransactionStatus status;
@@ -21,14 +16,16 @@ class TransactionState {
     this.status = TransactionStatus.initial,
     this.errorMessage,
   });
+
+  bool get isOfflineQueued => status == TransactionStatus.queued;
 }
 
 // ── Notifier ───────────────────────────────────────────────────────────────
 
 final transactionNotifierProvider =
     StateNotifierProvider<TransactionNotifier, TransactionState>((ref) {
-      return TransactionNotifier(ref.read(transactionsRepositoryProvider));
-    });
+  return TransactionNotifier(ref.read(transactionsRepositoryProvider));
+});
 
 class TransactionNotifier extends StateNotifier<TransactionState> {
   TransactionNotifier(this._repo) : super(const TransactionState());
@@ -37,19 +34,25 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
   Future<bool> checkout({
     required int farmerId,
+    required String farmerName,
     required String paymentMethod,
     double? interestRate,
     required List<CheckoutItem> items,
   }) async {
     state = const TransactionState(status: TransactionStatus.loading);
     try {
-      await _repo.checkout(
+      final result = await _repo.checkout(
         farmerId: farmerId,
+        farmerName: farmerName,
         paymentMethod: paymentMethod,
         interestRate: interestRate,
         items: items,
       );
-      state = const TransactionState(status: TransactionStatus.success);
+      state = TransactionState(
+        status: result.queued
+            ? TransactionStatus.queued
+            : TransactionStatus.success,
+      );
       return true;
     } catch (e) {
       state = TransactionState(
@@ -60,6 +63,5 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
-  void reset() =>
-      state = const TransactionState(status: TransactionStatus.initial);
+  void reset() => state = const TransactionState();
 }

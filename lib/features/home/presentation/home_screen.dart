@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../services/connectivity_service.dart';
 import '../../auth/presentation/auth_notifier.dart';
+import '../../sync/sync_notifier.dart';
 import '../../transactions/presentation/cart_notifier.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -45,6 +47,8 @@ class HomeScreen extends ConsumerWidget {
     ];
 
     final cartCount = ref.watch(cartProvider.select((c) => c.length));
+    final syncState = ref.watch(syncNotifierProvider);
+    final isOnline = ref.watch(isOnlineProvider).asData?.value ?? true;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -83,6 +87,112 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
       body: SafeArea(
+        child: Column(
+          children: [
+            // ── Offline banner ──────────────────────────────────────────────
+            if (!isOnline)
+              Material(
+                color: const Color(0xFFE65100),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.wifi_off, color: Colors.white, size: 18),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'You are offline — transactions will be queued',
+                          style: TextStyle(color: Colors.white, fontSize: 13),
+                        ),
+                      ),
+                      if (syncState.totalQueued > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${syncState.totalQueued} queued',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // ── Sync banner (online + pending) ──────────────────────────────
+            if (isOnline && syncState.totalQueued > 0)
+              Material(
+                color: syncState.isSyncing
+                    ? AppColors.primary
+                    : syncState.hasFailed
+                        ? AppColors.error
+                        : const Color(0xFF2E7D32),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      if (syncState.isSyncing)
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
+                        )
+                      else
+                        Icon(
+                          syncState.hasFailed
+                              ? Icons.sync_problem
+                              : Icons.sync,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          syncState.isSyncing
+                              ? 'Syncing ${syncState.pendingCount} transaction(s)…'
+                              : syncState.hasFailed
+                                  ? '${syncState.failedCount} transaction(s) failed to sync'
+                                  : '${syncState.pendingCount} transaction(s) pending sync',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 13),
+                        ),
+                      ),
+                      if (syncState.hasFailed)
+                        TextButton(
+                          onPressed: () => ref
+                              .read(syncNotifierProvider.notifier)
+                              .retryFailed(),
+                          child: const Text('Retry',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
+                        )
+                      else if (!syncState.isSyncing)
+                        TextButton(
+                          onPressed: () =>
+                              ref.read(syncNotifierProvider.notifier).syncNow(),
+                          child: const Text('Sync now',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // ── Main content ────────────────────────────────────────────────
+            Expanded(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -104,7 +214,7 @@ class HomeScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bonjour, ${user?.name ?? 'Opérateur'} 👋',
+                      'Hello, ${user?.name ?? 'Operator'} 👋',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -122,7 +232,7 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 28),
 
               const Text(
-                'Menu principal',
+                'Main menu',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -149,6 +259,9 @@ class HomeScreen extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+      ),
+          ],
         ),
       ),
     );

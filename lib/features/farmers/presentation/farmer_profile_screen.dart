@@ -53,7 +53,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Actualiser',
+            tooltip: 'Refresh',
             onPressed: _refresh,
           ),
         ],
@@ -148,7 +148,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                     children: [
                       Expanded(
                         child: _InfoCard(
-                          label: 'Limite de crédit',
+                          label: 'Credit limit',
                           value:
                               '${farmer.creditLimitFcfa.toStringAsFixed(0)} F',
                           icon: Icons.account_balance_wallet,
@@ -178,7 +178,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                     children: [
                       Expanded(
                         child: AppButton(
-                          label: 'Nouvelle transaction',
+                          label: 'New transaction',
                           onPressed: () => context.push(
                               '/checkout?farmerId=${widget.farmerId}&farmerName=${Uri.encodeComponent(farmer.fullName)}'),
                         ),
@@ -186,7 +186,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: AppButton(
-                          label: 'Remboursement',
+                          label: 'Repayment',
                           color: AppColors.accent,
                           onPressed: () => context.push(
                               '/repayments?farmerId=${widget.farmerId}'),
@@ -219,7 +219,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(16),
                               child: Text(
-                                'Aucune dette enregistrée.',
+                                'No debts recorded.',
                                 style: TextStyle(
                                     color: AppColors.textSecondary),
                               ),
@@ -259,7 +259,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
                                         ),
                                       ),
                                       Text(
-                                        'Reste: ${d.remainingFcfa.toStringAsFixed(0)} F',
+                                        'Left: ${d.remainingFcfa.toStringAsFixed(0)} F',
                                         style: const TextStyle(
                                           fontSize: 11,
                                           color: AppColors.textSecondary,

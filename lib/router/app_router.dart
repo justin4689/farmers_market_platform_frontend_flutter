@@ -23,6 +23,9 @@ class _RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
   String? redirect(BuildContext context, GoRouterState state) {
+    // Le splash gère sa propre navigation — ne jamais le rediriger
+    if (state.matchedLocation == '/splash') return null;
+
     final authState = _ref.read(authNotifierProvider);
     final isInitializing =
         authState.status == AuthStatus.initial ||
@@ -130,7 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     errorBuilder: (_, state) => Scaffold(
       body: Center(
         child: Text(
-          'Page introuvable : ${state.uri}',
+          'Page not found: ${state.uri}',
           style: const TextStyle(fontSize: 16),
         ),
       ),

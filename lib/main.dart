@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/constants/app_colors.dart';
 import 'core/constants/app_strings.dart';
 import 'features/auth/presentation/auth_notifier.dart';
+import 'features/sync/sync_notifier.dart';
 import 'router/app_router.dart';
+import 'services/local_cache_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: FarmersMarketApp()));
+  final prefs = await SharedPreferences.getInstance();
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const FarmersMarketApp(),
+    ),
+  );
 }
 
 class FarmersMarketApp extends ConsumerStatefulWidget {
@@ -21,10 +32,11 @@ class _FarmersMarketAppState extends ConsumerState<FarmersMarketApp> {
   @override
   void initState() {
     super.initState();
-    // Check stored token on startup → router redirect handles navigation
-    Future.microtask(
-      () => ref.read(authNotifierProvider.notifier).checkAuth(),
-    );
+    Future.microtask(() {
+      ref.read(authNotifierProvider.notifier).checkAuth();
+      // Start sync service early so it listens for connectivity changes
+      ref.read(syncNotifierProvider);
+    });
   }
 
   @override

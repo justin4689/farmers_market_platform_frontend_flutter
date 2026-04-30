@@ -22,6 +22,13 @@ class CategoryModel {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'parent_id': parentId,
+        'children': children.map((c) => c.toJson()).toList(),
+      };
 }
 
 class ProductCategoryRef {
@@ -36,6 +43,8 @@ class ProductCategoryRef {
       name: json['name'] as String,
     );
   }
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
 }
 
 class ProductModel {
@@ -66,4 +75,13 @@ class ProductModel {
       createdAt: json['created_at'] as String? ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'price_fcfa': priceFcfa,
+        'description': description,
+        'category': category?.toJson(),
+        'created_at': createdAt,
+      };
 }

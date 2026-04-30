@@ -22,6 +22,7 @@ class AuthRepository {
       final token = data['token'] as String;
       final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
       await _api.saveToken(token);
+      await _api.saveUser(user.toJson());
       return (token, user);
     } catch (e) {
       throw _api.handleError(e);
@@ -35,11 +36,18 @@ class AuthRepository {
       // Always clear local token even if the server call fails.
     } finally {
       await _api.deleteToken();
+      await _api.deleteUser();
     }
   }
 
   Future<bool> hasToken() async {
     final token = await _api.getToken();
     return token != null;
+  }
+
+  Future<UserModel?> getSavedUser() async {
+    final json = await _api.getSavedUser();
+    if (json == null) return null;
+    return UserModel.fromJson(json);
   }
 }

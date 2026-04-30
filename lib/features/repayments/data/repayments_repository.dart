@@ -39,7 +39,7 @@ class RepaymentsRepository {
       if (responseData is! Map<String, dynamic>) {
         throw const ApiException(
           statusCode: 0,
-          message: 'Réponse inattendue du serveur',
+          message: 'Unexpected server response',
         );
       }
       final json = responseData['data'] is Map<String, dynamic>

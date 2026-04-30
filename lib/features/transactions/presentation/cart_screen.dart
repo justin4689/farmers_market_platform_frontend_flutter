@@ -26,13 +26,13 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        title: const Text('Panier'),
+        title: const Text('Cart'),
         actions: [
           if (cart.isNotEmpty)
             TextButton(
               onPressed: () => ref.read(cartProvider.notifier).clear(),
               child: const Text(
-                'Vider',
+                'Clear',
                 style: TextStyle(color: Colors.white70),
               ),
             ),
@@ -50,7 +50,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Le panier est vide',
+                    'Your cart is empty',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 16,
@@ -141,7 +141,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                             ),
                           ),
                           child: const Text(
-                            'Valider la commande',
+                            'Place order',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -158,7 +158,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
   }
 
   void _showCheckoutSheet() {
-    showModalBottomSheet<bool>(
+    showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -168,12 +168,18 @@ class _CartScreenState extends ConsumerState<CartScreen> {
         container: ProviderScope.containerOf(context),
         child: const _CheckoutSheet(),
       ),
-    ).then((success) {
-      if (success == true && mounted) {
+    ).then((result) {
+      if (result != null && mounted) {
+        final isQueued = result == 'queued';
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paiement effectué avec succès !'),
-            backgroundColor: AppColors.primary,
+          SnackBar(
+            content: Text(
+              isQueued
+                  ? 'Transaction queued – will sync when online'
+                  : 'Payment successful!',
+            ),
+            backgroundColor:
+                isQueued ? AppColors.accent : AppColors.primary,
           ),
         );
         context.go('/home');
@@ -234,14 +240,17 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
         .read(transactionNotifierProvider.notifier)
         .checkout(
           farmerId: _selectedFarmer!.id,
+          farmerName: _selectedFarmer!.fullName,
           paymentMethod: _paymentMethod,
           interestRate: _paymentMethod == 'credit' ? _interestRate : null,
           items: items,
         );
 
     if (success && mounted) {
+      final isQueued =
+          ref.read(transactionNotifierProvider).isOfflineQueued;
       ref.read(cartProvider.notifier).clear();
-      Navigator.of(context).pop(true);
+      Navigator.of(context).pop(isQueued ? 'queued' : 'success');
     }
   }
 
@@ -261,7 +270,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
               children: [
                 Icon(Icons.error_outline, color: AppColors.error),
                 SizedBox(width: 8),
-                Text('Erreur de paiement'),
+                Text('Payment error'),
               ],
             ),
             content: Text(next.errorMessage!),
@@ -313,14 +322,14 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Sélectionner l\'agriculteur',
+                'Select farmer',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _searchCtrl,
                 decoration: InputDecoration(
-                  hintText: 'Rechercher un agriculteur...',
+                  hintText: 'Search for a farmer...',
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchCtrl.text.isNotEmpty
                       ? IconButton(
@@ -368,7 +377,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                 ),
               ),
               child: const Text(
-                'Suivant',
+                'Next',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
@@ -384,7 +393,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
         child: Padding(
           padding: EdgeInsets.all(24),
           child: Text(
-            'Tapez un nom pour rechercher',
+            'Type a name to search',
             style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
@@ -403,7 +412,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            state.errorMessage ?? 'Erreur de recherche',
+            state.errorMessage ?? 'Search error',
             style: const TextStyle(color: AppColors.error),
           ),
         ),
@@ -414,7 +423,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
         child: Padding(
           padding: EdgeInsets.all(24),
           child: Text(
-            'Aucun agriculteur trouvé',
+            'No farmer found',
             style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
@@ -482,7 +491,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
           ),
           const SizedBox(height: 16),
           const Text(
-            'Mode de paiement',
+            'Payment method',
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 10),
@@ -490,7 +499,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
             children: [
               Expanded(
                 child: _PaymentMethodButton(
-                  label: 'Espèces',
+                  label: 'Cash',
                   icon: Icons.money,
                   selected: _paymentMethod == 'cash',
                   onTap: () => setState(() => _paymentMethod = 'cash'),
@@ -499,7 +508,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
               const SizedBox(width: 10),
               Expanded(
                 child: _PaymentMethodButton(
-                  label: 'Crédit',
+                  label: 'Credit',
                   icon: Icons.credit_card,
                   selected: _paymentMethod == 'credit',
                   onTap: () => setState(() => _paymentMethod = 'credit'),
@@ -510,7 +519,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
           if (_paymentMethod == 'credit') ...[
             const SizedBox(height: 14),
             const Text(
-              'Taux d\'intérêt (%)',
+              'Interest rate (%)',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 6),
@@ -541,13 +550,13 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
             child: Column(
               children: [
                 _SummaryRow(
-                  label: 'Sous-total',
+                  label: 'Subtotal',
                   value: subtotal.toStringAsFixed(0),
                 ),
                 if (_paymentMethod == 'credit') ...[
                   const SizedBox(height: 6),
                   _SummaryRow(
-                    label: 'Intérêt (${_interestCtrl.text}%)',
+                    label: 'Interest (${_interestCtrl.text}%)',
                     value: interestAmount.toStringAsFixed(0),
                   ),
                 ],
@@ -581,7 +590,7 @@ class _CheckoutSheetState extends ConsumerState<_CheckoutSheet> {
                     ),
                   )
                 : const Text(
-                    'Payer',
+                    'Pay',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

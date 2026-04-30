@@ -37,7 +37,7 @@ class _FarmerSearchScreenState extends ConsumerState<FarmerSearchScreen> {
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.person_add),
-        label: const Text('Nouveau'),
+        label: const Text('New'),
         onPressed: () => context.push('/farmers/create'),
       ),
       body: Column(
@@ -142,7 +142,7 @@ class _FarmerSearchScreenState extends ConsumerState<FarmerSearchScreen> {
                       Icon(Icons.search, size: 64, color: AppColors.textHint),
                       const SizedBox(height: 12),
                       const Text(
-                        'Saisissez un nom ou téléphone',
+                        'Enter a name or phone number',
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
                     ],

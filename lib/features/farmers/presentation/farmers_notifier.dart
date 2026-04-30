@@ -1,13 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/exceptions/api_exception.dart';
 import '../../../features/auth/presentation/auth_notifier.dart';
+import '../../../services/connectivity_service.dart';
+import '../../../services/local_cache_service.dart';
 import '../data/farmers_repository.dart';
 import '../domain/farmer_model.dart';
 
 // ── Providers ──────────────────────────────────────────────────────────────
 
 final farmersRepositoryProvider = Provider<FarmersRepository>(
-  (ref) => FarmersRepository(ref.read(apiServiceProvider)),
+  (ref) => FarmersRepository(
+    ref.read(apiServiceProvider),
+    ref.read(localCacheServiceProvider),
+    ref.read(connectivityServiceProvider),
+  ),
 );
 
 final farmersNotifierProvider =

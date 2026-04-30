@@ -25,4 +25,13 @@ class UserModel {
       createdAt: json['created_at'] as String? ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'email': email,
+        'role': role,
+        'created_by': createdBy,
+        'created_at': createdAt,
+      };
 }

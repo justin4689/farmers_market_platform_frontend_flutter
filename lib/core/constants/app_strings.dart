@@ -2,76 +2,76 @@ class AppStrings {
   AppStrings._();
 
   // App
-  static const String appName = 'Marché Agricole';
-  static const String appTagline = 'XpertBot — Gestion des transactions';
+  static const String appName = 'Farmers Market';
+  static const String appTagline = 'XpertBot — Transaction Management';
 
   // Auth
-  static const String login = 'Connexion';
-  static const String logout = 'Déconnexion';
-  static const String email = 'Adresse e-mail';
-  static const String password = 'Mot de passe';
-  static const String loginButton = 'Se connecter';
-  static const String loginError = 'Email ou mot de passe incorrect.';
-  static const String sessionExpired = 'Session expirée. Veuillez vous reconnecter.';
+  static const String login = 'Login';
+  static const String logout = 'Logout';
+  static const String email = 'Email address';
+  static const String password = 'Password';
+  static const String loginButton = 'Sign in';
+  static const String loginError = 'Incorrect email or password.';
+  static const String sessionExpired = 'Session expired. Please sign in again.';
 
   // Home
-  static const String home = 'Accueil';
-  static const String welcomeOperator = 'Bienvenue, Opérateur';
-  static const String searchFarmer = 'Chercher un agriculteur';
-  static const String createFarmer = 'Créer un agriculteur';
-  static const String products = 'Produits';
-  static const String repayments = 'Remboursements';
+  static const String home = 'Home';
+  static const String welcomeOperator = 'Welcome, Operator';
+  static const String searchFarmer = 'Search Farmer';
+  static const String createFarmer = 'Add Farmer';
+  static const String products = 'Products';
+  static const String repayments = 'Repayments';
 
   // Farmers
-  static const String farmerSearch = 'Recherche agriculteur';
-  static const String farmerProfile = 'Profil agriculteur';
-  static const String newFarmer = 'Nouvel agriculteur';
-  static const String farmerName = 'Nom complet';
-  static const String farmerPhone = 'Téléphone';
+  static const String farmerSearch = 'Farmer Search';
+  static const String farmerProfile = 'Farmer Profile';
+  static const String newFarmer = 'New Farmer';
+  static const String farmerName = 'Full name';
+  static const String farmerPhone = 'Phone';
   static const String farmerVillage = 'Village';
-  static const String farmerCreated = 'Agriculteur créé avec succès.';
-  static const String noFarmerFound = 'Aucun agriculteur trouvé.';
-  static const String searchHint = 'Rechercher par nom ou téléphone…';
-  static const String debtSummary = 'Résumé des dettes';
-  static const String totalDebt = 'Dette totale';
+  static const String farmerCreated = 'Farmer created successfully.';
+  static const String noFarmerFound = 'No farmer found.';
+  static const String searchHint = 'Search by name or phone…';
+  static const String debtSummary = 'Debt Summary';
+  static const String totalDebt = 'Total Debt';
 
   // Products & Categories
-  static const String categories = 'Catégories';
-  static const String allProducts = 'Tous les produits';
-  static const String pricePerKg = 'Prix/kg';
-  static const String noProducts = 'Aucun produit disponible.';
+  static const String categories = 'Categories';
+  static const String allProducts = 'All Products';
+  static const String pricePerKg = 'Price/kg';
+  static const String noProducts = 'No products available.';
 
   // Checkout
-  static const String checkout = 'Paiement';
-  static const String quantity = 'Quantité (kg)';
-  static const String totalAmount = 'Montant total';
-  static const String paymentMethod = 'Mode de paiement';
-  static const String cash = 'Espèces';
+  static const String checkout = 'Payment';
+  static const String quantity = 'Quantity (kg)';
+  static const String totalAmount = 'Total amount';
+  static const String paymentMethod = 'Payment method';
+  static const String cash = 'Cash';
   static const String mobileMoney = 'Mobile Money';
-  static const String credit = 'Crédit';
-  static const String confirmTransaction = 'Confirmer la transaction';
-  static const String transactionSuccess = 'Transaction enregistrée avec succès.';
+  static const String credit = 'Credit';
+  static const String confirmTransaction = 'Confirm transaction';
+  static const String transactionSuccess = 'Transaction recorded successfully.';
 
   // Repayments
-  static const String repayment = 'Remboursement';
-  static const String weightKg = 'Poids (kg)';
-  static const String amountFcfa = 'Montant (FCFA)';
-  static const String confirmRepayment = 'Confirmer le remboursement';
-  static const String repaymentSuccess = 'Remboursement enregistré avec succès.';
+  static const String repayment = 'Repayment';
+  static const String weightKg = 'Weight (kg)';
+  static const String amountFcfa = 'Amount (FCFA)';
+  static const String confirmRepayment = 'Confirm repayment';
+  static const String repaymentSuccess = 'Repayment recorded successfully.';
 
   // Errors
-  static const String networkError = 'Erreur réseau. Vérifiez votre connexion.';
-  static const String serverError = 'Erreur serveur. Réessayez plus tard.';
-  static const String unknownError = 'Une erreur inattendue s\'est produite.';
-  static const String forbidden = 'Accès refusé.';
-  static const String validationError = 'Données invalides. Vérifiez les champs.';
+  static const String networkError = 'Network error. Check your connection.';
+  static const String serverError = 'Server error. Please try again later.';
+  static const String unknownError = 'An unexpected error occurred.';
+  static const String forbidden = 'Access denied.';
+  static const String validationError = 'Invalid data. Check the fields.';
 
   // Actions
-  static const String save = 'Enregistrer';
-  static const String cancel = 'Annuler';
-  static const String retry = 'Réessayer';
-  static const String back = 'Retour';
-  static const String loading = 'Chargement…';
-  static const String confirm = 'Confirmer';
-  static const String search = 'Rechercher';
+  static const String save = 'Save';
+  static const String cancel = 'Cancel';
+  static const String retry = 'Retry';
+  static const String back = 'Back';
+  static const String loading = 'Loading…';
+  static const String confirm = 'Confirm';
+  static const String search = 'Search';
 }

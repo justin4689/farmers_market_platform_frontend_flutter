@@ -16,9 +16,7 @@ final farmerDebtsProvider =
 });
 
 final repaymentNotifierProvider =
-    StateNotifierProvider<RepaymentNotifier, RepaymentState>((ref) {
-  return RepaymentNotifier(ref.read(repaymentsRepositoryProvider));
-});
+    NotifierProvider<RepaymentNotifier, RepaymentState>(RepaymentNotifier.new);
 
 // ── State ──────────────────────────────────────────────────────────────────
 
@@ -36,10 +34,14 @@ class RepaymentState {
 
 // ── Notifier ───────────────────────────────────────────────────────────────
 
-class RepaymentNotifier extends StateNotifier<RepaymentState> {
-  RepaymentNotifier(this._repo) : super(const RepaymentState());
+class RepaymentNotifier extends Notifier<RepaymentState> {
+  late final RepaymentsRepository _repo;
 
-  final RepaymentsRepository _repo;
+  @override
+  RepaymentState build() {
+    _repo = ref.read(repaymentsRepositoryProvider);
+    return const RepaymentState();
+  }
 
   Future<bool> createRepayment({
     required int farmerId,

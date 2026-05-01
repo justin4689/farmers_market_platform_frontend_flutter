@@ -52,6 +52,10 @@ class OfflineQueue {
         .toList());
   }
 
+  Future<void> clearFailed() async {
+    await _save(getAll().where((t) => !t.isFailed).toList());
+  }
+
   Future<void> _save(List<PendingTransaction> list) async {
     await _prefs.setString(
       _key,

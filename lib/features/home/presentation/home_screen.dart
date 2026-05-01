@@ -6,6 +6,7 @@ import '../../../core/constants/app_strings.dart';
 import '../../../services/connectivity_service.dart';
 import '../../auth/presentation/auth_notifier.dart';
 import '../../sync/sync_notifier.dart';
+import '../../sync/sync_status_sheet.dart';
 import '../../transactions/presentation/cart_notifier.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -93,36 +94,39 @@ class HomeScreen extends ConsumerWidget {
             if (!isOnline)
               Material(
                 color: const Color(0xFFE65100),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.wifi_off, color: Colors.white, size: 18),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: Text(
-                          'You are offline — transactions will be queued',
-                          style: TextStyle(color: Colors.white, fontSize: 13),
-                        ),
-                      ),
-                      if (syncState.totalQueued > 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.white24,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                child: InkWell(
+                  onTap: () => SyncStatusSheet.show(context),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.wifi_off, color: Colors.white, size: 18),
+                        const SizedBox(width: 8),
+                        const Expanded(
                           child: Text(
-                            '${syncState.totalQueued} queued',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold),
+                            'Hors ligne — les transactions seront mises en file',
+                            style: TextStyle(color: Colors.white, fontSize: 13),
                           ),
                         ),
-                    ],
+                        if (syncState.totalQueued > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white24,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${syncState.totalQueued} en attente',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.chevron_right, color: Colors.white, size: 18),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -135,58 +139,39 @@ class HomeScreen extends ConsumerWidget {
                     : syncState.hasFailed
                         ? AppColors.error
                         : const Color(0xFF2E7D32),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      if (syncState.isSyncing)
-                        const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2),
-                        )
-                      else
-                        Icon(
-                          syncState.hasFailed
-                              ? Icons.sync_problem
-                              : Icons.sync,
-                          color: Colors.white,
-                          size: 18,
+                child: InkWell(
+                  onTap: () => SyncStatusSheet.show(context),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        if (syncState.isSyncing)
+                          const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2),
+                          )
+                        else
+                          Icon(
+                            syncState.hasFailed ? Icons.sync_problem : Icons.sync,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            syncState.isSyncing
+                                ? 'Synchronisation de ${syncState.pendingCount} transaction(s)…'
+                                : syncState.hasFailed
+                                    ? '${syncState.failedCount} transaction(s) ont échoué — appuyer pour détails'
+                                    : '${syncState.pendingCount} transaction(s) en attente — appuyer pour détails',
+                            style: const TextStyle(color: Colors.white, fontSize: 13),
+                          ),
                         ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          syncState.isSyncing
-                              ? 'Syncing ${syncState.pendingCount} transaction(s)…'
-                              : syncState.hasFailed
-                                  ? '${syncState.failedCount} transaction(s) failed to sync'
-                                  : '${syncState.pendingCount} transaction(s) pending sync',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 13),
-                        ),
-                      ),
-                      if (syncState.hasFailed)
-                        TextButton(
-                          onPressed: () => ref
-                              .read(syncNotifierProvider.notifier)
-                              .retryFailed(),
-                          child: const Text('Retry',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
-                        )
-                      else if (!syncState.isSyncing)
-                        TextButton(
-                          onPressed: () =>
-                              ref.read(syncNotifierProvider.notifier).syncNow(),
-                          child: const Text('Sync now',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
-                        ),
-                    ],
+                        const Icon(Icons.chevron_right, color: Colors.white, size: 18),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -203,11 +188,7 @@ class HomeScreen extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.primaryLight],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(

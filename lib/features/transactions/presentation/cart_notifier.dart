@@ -11,8 +11,9 @@ class CartEntry {
       CartEntry(product: product, quantity: quantity ?? this.quantity);
 }
 
-class CartNotifier extends StateNotifier<Map<int, CartEntry>> {
-  CartNotifier() : super({});
+class CartNotifier extends Notifier<Map<int, CartEntry>> {
+  @override
+  Map<int, CartEntry> build() => {};
 
   void add(ProductModel product, {int qty = 1}) {
     final current = Map<int, CartEntry>.from(state);
@@ -78,6 +79,5 @@ class CartNotifier extends StateNotifier<Map<int, CartEntry>> {
   int get count => state.values.fold(0, (s, e) => s + e.quantity);
 }
 
-final cartProvider = StateNotifierProvider<CartNotifier, Map<int, CartEntry>>(
-  (_) => CartNotifier(),
-);
+final cartProvider =
+    NotifierProvider<CartNotifier, Map<int, CartEntry>>(CartNotifier.new);

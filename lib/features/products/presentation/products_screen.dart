@@ -166,8 +166,7 @@ class ProductsScreen extends ConsumerWidget {
                             : AppColors.textPrimary,
                       ),
                       onSelected: (_) =>
-                          ref.read(selectedCategoryProvider.notifier).state =
-                              null,
+                          ref.read(selectedCategoryProvider.notifier).select(null),
                     ),
                   ),
                   ...categories.map(
@@ -183,8 +182,7 @@ class ProductsScreen extends ConsumerWidget {
                               : AppColors.textPrimary,
                         ),
                         onSelected: (_) =>
-                            ref.read(selectedCategoryProvider.notifier).state =
-                                c.id,
+                            ref.read(selectedCategoryProvider.notifier).select(c.id),
                       ),
                     ),
                   ),

@@ -50,13 +50,7 @@ class _FarmerProfileScreenState extends ConsumerState<FarmerProfileScreen> {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         title: const Text(AppStrings.farmerProfile),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
-            onPressed: _refresh,
-          ),
-        ],
+        
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,

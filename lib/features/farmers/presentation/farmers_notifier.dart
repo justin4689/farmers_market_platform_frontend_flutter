@@ -17,9 +17,7 @@ final farmersRepositoryProvider = Provider<FarmersRepository>(
 );
 
 final farmersNotifierProvider =
-    StateNotifierProvider<FarmersNotifier, FarmersState>((ref) {
-  return FarmersNotifier(ref.read(farmersRepositoryProvider));
-});
+    NotifierProvider<FarmersNotifier, FarmersState>(FarmersNotifier.new);
 
 final farmerDetailProvider =
     FutureProvider.family<FarmerModel, int>((ref, id) async {
@@ -56,10 +54,14 @@ class FarmersState {
 
 // ── Notifier ───────────────────────────────────────────────────────────────
 
-class FarmersNotifier extends StateNotifier<FarmersState> {
-  FarmersNotifier(this._repo) : super(const FarmersState());
+class FarmersNotifier extends Notifier<FarmersState> {
+  late final FarmersRepository _repo;
 
-  final FarmersRepository _repo;
+  @override
+  FarmersState build() {
+    _repo = ref.read(farmersRepositoryProvider);
+    return const FarmersState();
+  }
 
   Future<void> search(String query) async {
     if (query.trim().isEmpty) {

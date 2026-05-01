@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/connectivity_service.dart';
 import '../transactions/data/offline_queue.dart';
 import '../transactions/data/transactions_repository.dart';
+import '../transactions/domain/pending_transaction.dart';
 import '../transactions/domain/transaction_model.dart';
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -46,16 +47,21 @@ class SyncState {
 
 // ── Notifier ───────────────────────────────────────────────────────────────
 
-class SyncNotifier extends StateNotifier<SyncState> {
-  SyncNotifier(this._queue, this._repo, this._connectivity)
-      : super(const SyncState()) {
-    _init();
-  }
-
-  final OfflineQueue _queue;
-  final TransactionsRepository _repo;
-  final ConnectivityService _connectivity;
+class SyncNotifier extends Notifier<SyncState> {
+  late final OfflineQueue _queue;
+  late final TransactionsRepository _repo;
+  late final ConnectivityService _connectivity;
   StreamSubscription<bool>? _sub;
+
+  @override
+  SyncState build() {
+    _queue = ref.read(offlineQueueProvider);
+    _repo = ref.read(transactionsRepositoryProvider);
+    _connectivity = ref.read(connectivityServiceProvider);
+    ref.onDispose(() => _sub?.cancel());
+    _init();
+    return const SyncState();
+  }
 
   void _init() async {
     final online = await _connectivity.isOnline();
@@ -111,11 +117,19 @@ class SyncNotifier extends StateNotifier<SyncState> {
     );
   }
 
+  List<PendingTransaction> getAll() => _queue.getAll();
+
   // Retry all failed transactions
   Future<void> retryFailed() async {
     await _queue.resetFailed();
     _refreshCounts();
     if (state.isOnline) await _sync();
+  }
+
+  // Discard all permanently failed transactions
+  Future<void> clearFailed() async {
+    await _queue.clearFailed();
+    _refreshCounts();
   }
 
   // Manually trigger sync
@@ -124,18 +138,7 @@ class SyncNotifier extends StateNotifier<SyncState> {
     await _sync();
   }
 
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
 }
 
 final syncNotifierProvider =
-    StateNotifierProvider<SyncNotifier, SyncState>((ref) {
-  return SyncNotifier(
-    ref.read(offlineQueueProvider),
-    ref.read(transactionsRepositoryProvider),
-    ref.read(connectivityServiceProvider),
-  );
-});
+    NotifierProvider<SyncNotifier, SyncState>(SyncNotifier.new);

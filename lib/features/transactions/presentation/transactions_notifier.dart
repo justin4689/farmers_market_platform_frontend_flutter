@@ -23,14 +23,16 @@ class TransactionState {
 // ── Notifier ───────────────────────────────────────────────────────────────
 
 final transactionNotifierProvider =
-    StateNotifierProvider<TransactionNotifier, TransactionState>((ref) {
-  return TransactionNotifier(ref.read(transactionsRepositoryProvider));
-});
+    NotifierProvider<TransactionNotifier, TransactionState>(TransactionNotifier.new);
 
-class TransactionNotifier extends StateNotifier<TransactionState> {
-  TransactionNotifier(this._repo) : super(const TransactionState());
+class TransactionNotifier extends Notifier<TransactionState> {
+  late final TransactionsRepository _repo;
 
-  final TransactionsRepository _repo;
+  @override
+  TransactionState build() {
+    _repo = ref.read(transactionsRepositoryProvider);
+    return const TransactionState();
+  }
 
   Future<bool> checkout({
     required int farmerId,

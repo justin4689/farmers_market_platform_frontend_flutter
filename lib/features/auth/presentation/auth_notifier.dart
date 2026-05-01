@@ -13,9 +13,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
 );
 
 final authNotifierProvider =
-    StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier(ref.read(authRepositoryProvider));
-});
+    NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
 
 // ── State ──────────────────────────────────────────────────────────────────
 
@@ -54,10 +52,14 @@ class AuthState {
 
 // ── Notifier ───────────────────────────────────────────────────────────────
 
-class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier(this._repo) : super(const AuthState.initial());
+class AuthNotifier extends Notifier<AuthState> {
+  late final AuthRepository _repo;
 
-  final AuthRepository _repo;
+  @override
+  AuthState build() {
+    _repo = ref.read(authRepositoryProvider);
+    return const AuthState.initial();
+  }
 
   /// Appelé au démarrage pour restaurer la session.
   Future<void> checkAuth() async {

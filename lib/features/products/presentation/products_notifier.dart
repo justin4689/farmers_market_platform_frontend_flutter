@@ -17,7 +17,16 @@ final categoriesProvider = FutureProvider<List<CategoryModel>>((ref) {
   return ref.read(productsRepositoryProvider).getCategories();
 });
 
-final selectedCategoryProvider = StateProvider<int?>((ref) => null);
+class SelectedCategoryNotifier extends Notifier<int?> {
+  @override
+  int? build() => null;
+
+  void select(int? id) => state = id;
+}
+
+final selectedCategoryProvider =
+    NotifierProvider<SelectedCategoryNotifier, int?>(
+        SelectedCategoryNotifier.new);
 
 final productsProvider = FutureProvider<List<ProductModel>>((ref) {
   final categoryId = ref.watch(selectedCategoryProvider);

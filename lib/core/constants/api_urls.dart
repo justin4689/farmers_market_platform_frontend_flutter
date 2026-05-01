@@ -1,13 +1,14 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class ApiUrls {
   ApiUrls._();
 
-  static const String baseUrl = 'http://10.0.2.2:8000/api';
+  // Web (Chrome) → localhost ; Android emulator → 10.0.2.2
+  static String get baseUrl =>
+      kIsWeb ? 'http://localhost:8000/api' : 'http://13.51.177.195/api';
 
-  //http://10.0.2.2:8000/api LOCAL API URL 
-
-  
   // static const String baseUrl = 'http://13.51.177.195/api';
-
+// static const String baseUrl = 'http://10.0.2.2:8000/api';
   // Auth
   static const String login = '/login';
   static const String logout = '/logout';

@@ -111,8 +111,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         fontSize: 12,
                       ),
                       onSelected: (_) =>
-                          ref.read(selectedCategoryProvider.notifier).state =
-                              null,
+                          ref.read(selectedCategoryProvider.notifier).select(null),
                     ),
                   ),
                   ...categories.map(
@@ -129,8 +128,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           fontSize: 12,
                         ),
                         onSelected: (_) =>
-                            ref.read(selectedCategoryProvider.notifier).state =
-                                c.id,
+                            ref.read(selectedCategoryProvider.notifier).select(c.id),
                       ),
                     ),
                   ),
@@ -363,6 +361,7 @@ class _CartBottomSheetState extends ConsumerState<_CartBottomSheet> {
         .read(transactionNotifierProvider.notifier)
         .checkout(
           farmerId: widget.farmerId!,
+          farmerName: widget.farmerName ?? '',
           paymentMethod: _paymentMethod,
           interestRate: interestRate,
           items: items,

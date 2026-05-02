@@ -157,7 +157,7 @@ flutter doctor
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/farmers-market-platform-frontend.git
+git clone https://github.com/justin4689/farmers-market-platform-frontend.git
 cd farmers-market-platform-frontend
 ```
 
@@ -251,7 +251,7 @@ gh-pages -d build/web
 
 3. Enable GitHub Pages in your repository settings → **Pages** → Source: `gh-pages` branch.
 
-**Live URL:** `https://YOUR_GITHUB_USERNAME.github.io/farmers-market-platform/`
+**Live URL:** `https://justin4689.github.io/farmers-market-platform/`
 
 ---
 

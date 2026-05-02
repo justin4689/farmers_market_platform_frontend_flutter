@@ -4,9 +4,13 @@ class ApiUrls {
   ApiUrls._();
 
   // Web (Chrome) → localhost ; Android emulator → 10.0.2.2
-  static String get baseUrl =>
-      kIsWeb ? 'http://localhost:8000/api' : 'http://13.51.177.195/api';
-
+static String get baseUrl {
+    if (kIsWeb) {
+      return 'https://challenging-behind-definitions-says.trycloudflare.com/api'; // ← plus localhost
+    } else {
+      return 'http://10.0.2.2:8000/api';
+    }
+  }
   // static const String baseUrl = 'http://13.51.177.195/api';
 // static const String baseUrl = 'http://10.0.2.2:8000/api';
   // Auth
